@@ -7,8 +7,8 @@
 #include <iostream>
 
 struct ASTNode {
-    std::string type;   // e.g. "Declaration", "Assignment"
-    std::string value;  // e.g. variable name or literal
+    std::string type;
+    std::string value;
     std::vector<std::shared_ptr<ASTNode>> children;
 
     ASTNode(const std::string& t, const std::string& v) : type(t), value(v) {}
@@ -22,4 +22,4 @@ inline void printAST(const std::shared_ptr<ASTNode>& node, int indent = 0) {
     }
 }
 
-#endif // AST_H
+#endif 

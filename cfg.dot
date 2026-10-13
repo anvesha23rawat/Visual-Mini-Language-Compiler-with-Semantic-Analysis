@@ -1,0 +1,20 @@
+digraph CFG {
+node [shape=box];
+B0 [label="--- Three Address Code ---"];
+B1 [label="t1 = 5 + 3"];
+B2 [label="a = t1"];
+B3 [label="if a < 10 goto L1"];
+B4 [label="goto L2"];
+B5 [label="L1:"];
+B6 [label="L2:"];
+B7 [label="t2 = a + 1"];
+B8 [label="a = t2"];
+B0 -> B1;
+B1 -> B2;
+B2 -> B3;
+B3 -> B4;
+B4 -> B5;
+B5 -> B6;
+B6 -> B7;
+B7 -> B8;
+}

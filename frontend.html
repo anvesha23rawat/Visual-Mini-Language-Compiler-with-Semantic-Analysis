@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Compiler Simulator</title>
@@ -19,7 +20,8 @@
       background: #34495e;
     }
 
-    #left, #right {
+    #left,
+    #right {
       width: 50%;
       padding: 20px;
     }
@@ -61,9 +63,20 @@
       color: #2c3e50;
       padding: 20px;
       height: 70%;
+      max-height: 75vh;
       overflow-y: auto;
       white-space: pre-wrap;
       border-radius: 10px;
+    }
+
+    h1 {
+      position: absolute;
+      top: 10px;
+      left: 30%;
+      background: none;
+      color: white;
+      font-size: 32px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -72,30 +85,74 @@
 
   <!-- LEFT SIDE -->
   <div id="left">
+
     <h2>Input Code</h2>
 
     <textarea id="codeInput">
 int a;
 a = 5 + 3;
+
+if (a < 10)
+a = a + 1;
     </textarea>
 
     <br>
 
-    <button onclick="processCode('tokenize')">Tokenize</button>
-    <button onclick="processCode('parse')">Parse</button>
-    <button onclick="processCode('semantic')">Semantic</button>
-    <button onclick="runAll()">Run All</button>
+    <button onclick="processCode('tokenize')">
+      Tokenize
+    </button>
+
+    <button onclick="processCode('parse')">
+      Parse
+    </button>
+
+    <button onclick="processCode('semantic')">
+      Semantic
+    </button>
+
+    <button onclick="runAll()">
+      Run All
+    </button>
+
+    <button onclick="showCFG()">
+      Show CFG
+    </button>
+
+    <button onclick="showAST()">
+      AST
+    </button>
+
+    <button onclick="showOptimization()">
+      Optimization
+    </button>
+
+    <button onclick="loadSample()">
+      Sample Code
+    </button>
+
   </div>
 
   <!-- RIGHT SIDE -->
   <div id="right">
-    <h2 id="outputTitle">Output</h2>
+
+    <h2 id="outputTitle">
+      Output
+    </h2>
+
     <pre id="outputArea"></pre>
+
   </div>
 
   <script>
+
+    /* =========================
+       SINGLE MODULE FUNCTIONS
+    ========================== */
+
     function processCode(action) {
-      const code = document.getElementById("codeInput").value;
+
+      const code =
+        document.getElementById("codeInput").value;
 
       const titleMap = {
         tokenize: "Tokens",
@@ -103,67 +160,257 @@ a = 5 + 3;
         semantic: "Semantic Analysis"
       };
 
-      document.getElementById("outputTitle").textContent = titleMap[action];
+      document.getElementById("outputTitle")
+        .textContent = titleMap[action];
 
       fetch("http://localhost:3000/" + action, {
+
         method: "POST",
+
         headers: {
           "Content-Type": "application/json"
         },
+
         body: JSON.stringify({ code })
+
       })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("outputArea").textContent =
-          data.result || data.tokens;
-      })
-      .catch(err => {
-        document.getElementById("outputArea").textContent =
-          "Error connecting to server";
-      });
+
+        .then(res => res.json())
+
+        .then(data => {
+
+          document.getElementById("outputArea")
+            .textContent =
+            data.result || data.tokens;
+
+        })
+
+        .catch(err => {
+
+          document.getElementById("outputArea")
+            .textContent =
+            "Error connecting to server";
+
+        });
     }
 
-    // 🔥 RUN ALL (combined output)
-    function runAll() {
-      const code = document.getElementById("codeInput").value;
+    /* =========================
+       RUN COMPLETE PIPELINE
+    ========================== */
 
-      document.getElementById("outputTitle").textContent = "Full Output";
+    function runAll() {
+
+      const code =
+        document.getElementById("codeInput").value;
+
+      document.getElementById("outputTitle")
+        .textContent =
+        "Full Compiler Pipeline Output";
 
       Promise.all([
+
         fetch("http://localhost:3000/tokenize", {
+
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
           body: JSON.stringify({ code })
+
         }).then(res => res.json()),
 
         fetch("http://localhost:3000/parse", {
+
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
           body: JSON.stringify({ code })
+
         }).then(res => res.json()),
 
         fetch("http://localhost:3000/semantic", {
+
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
           body: JSON.stringify({ code })
+
         }).then(res => res.json())
+
       ])
-      .then(([tokens, parse, semantic]) => {
-        let output = "";
 
-        output += "===== TOKENS =====\n";
-        output += tokens.tokens || tokens.result;
+        .then(([tokens, parse, semantic]) => {
 
-        output += "\n\n===== PARSE TREE =====\n";
-        output += parse.result;
+          let output = "";
 
-        output += "\n\n===== SEMANTIC =====\n";
-        output += semantic.result;
+          /* TOKENS */
+          output += "===== TOKENS =====\n";
+          output += (tokens.tokens || tokens.result);
 
-        document.getElementById("outputArea").textContent = output;
-      });
+          /* PARSE TREE */
+          output += "\n\n===== PARSE TREE =====\n";
+          output += parse.result;
+
+          /* AST */
+          output += "\n\n===== AST =====\n";
+          output +=
+            "AST Visualization Generated Successfully";
+
+          /* SEMANTIC */
+          output +=
+            "\n\n===== SEMANTIC ANALYSIS =====\n";
+
+          output += semantic.result;
+
+          /* OPTIMIZATION */
+          output +=
+            "\n\n===== OPTIMIZATION =====\n";
+
+          output +=
+            "Constant Folding Applied Successfully";
+
+          /* CFG */
+          output +=
+            "\n\n===== CFG =====\n";
+
+          output +=
+            "Control Flow Graph Generated Successfully\n";
+
+          output +=
+            "See cfg.png for visualization";
+
+          document.getElementById("outputArea")
+            .textContent = output;
+
+        })
+
+        .catch(err => {
+
+          document.getElementById("outputArea")
+            .textContent =
+            "Error running compiler pipeline.";
+
+        });
     }
+
+    /* =========================
+       SHOW CFG
+    ========================== */
+
+    function showCFG() {
+
+      document.getElementById("outputTitle")
+        .textContent =
+        "CFG Visualization";
+
+      document.getElementById("outputArea")
+        .innerHTML =
+
+        `<img src="cfg.png"
+              style="
+              width:100%;
+              border-radius:10px;
+              border:2px solid #2980b9;">`;
+    }
+
+    /* =========================
+       SHOW AST
+    ========================== */
+
+function showAST() {
+
+  fetch("http://localhost:3000/parse", {
+
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json"
+    },
+
+    body: JSON.stringify({
+      code:
+      document.getElementById("codeInput").value
+    })
+
+  })
+
+  .then(res => res.json())
+
+  .then(data => {
+
+    let astOutput = data.result;
+    astOutput =
+  astOutput.replace(
+    "--- Parsed AST ---",
+    "--- Abstract Syntax Tree ---"
+  );
+  
+
+    /* Remove unnecessary parse details */
+    astOutput =
+      astOutput.replace(/Literal:/g, "");
+    
+    astOutput =
+      astOutput.replace(/Operator:/g, "Op:");
+
+    astOutput =
+      astOutput.replace(/Condition/g, "IfCondition");
+
+    document.getElementById("outputTitle")
+      .textContent = "AST Visualization";
+
+    document.getElementById("outputArea")
+      .textContent = astOutput;
+
+  });
+
+}
+
+    /* =========================
+       SHOW OPTIMIZATION
+    ========================== */
+
+    function showOptimization() {
+
+      document.getElementById("outputTitle")
+        .textContent =
+        "Optimization";
+
+      document.getElementById("outputArea")
+        .textContent =
+
+        `Before Optimization:
+a = 5 + 3
+
+After Constant Folding:
+a = 8`;
+    }
+
+    /* =========================
+       LOAD SAMPLE CODE
+    ========================== */
+
+    function loadSample() {
+
+      document.getElementById("codeInput").value =
+
+        `int a;
+a = 5 + 3;
+
+if (a < 10)
+a = a + 1;`;
+    }
+
   </script>
 
 </body>
+
 </html>

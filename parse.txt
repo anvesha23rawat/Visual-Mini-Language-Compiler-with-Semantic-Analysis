@@ -1,5 +1,8 @@
 --- Parsed AST ---
 Program
+  Declaration
+    Type: int
+    Name: a
   Assignment: a
     Literal: 5
     Operator: +
@@ -7,5 +10,9 @@ Program
   If
     Condition
       Identifier: a
-      Operator: >
-      Literal: 0
+      Operator: <
+      Literal: 10
+  Assignment: a
+    Identifier: a
+    Operator: +
+    Literal: 1
